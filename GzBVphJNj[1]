@@ -1,0 +1,196 @@
+<!DOCTYPE html><html><head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.8.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.8.0/addons/p5.dom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.8.0/addons/p5.sound.min.js"></script>
+<script src="https://assets.editor.p5js.org/5f6edf9a373ba6002415d9ca/1d9f4d94-db21-4f94-816d-b36e05046268.js"></script>
+    
+    <meta charset="utf-8">
+
+  <base href="https://editor.p5js.org/JagadeeshCoder/present/GzBVphJNj/"><style>
+html, body {
+  margin: 0;
+  padding: 0;
+}
+canvas {
+  display: block;
+}
+</style></head>
+  <body>
+      <script>var monkey , monkey_running;
+var banana ,bananaImage, obstacle, obstacleImage;
+var FoodGroup, obstacleGroup;
+var score, survialTime;
+var ground;
+
+
+
+var PLAY = 1;
+var END = 0;
+var gameState = PLAY;
+
+function preload(){
+  
+  
+
+  monkey_running =            loadAnimation("https://assets.editor.p5js.org/5f6edf9a373ba6002415d9ca/c1c90f34-4ecb-416a-9ca6-d6abc4d5f826.png","https://assets.editor.p5js.org/5f6edf9a373ba6002415d9ca/adb7391a-aa31-4cef-a8a5-246501d52e7f.png","https://assets.editor.p5js.org/5f6edf9a373ba6002415d9ca/5d6525a5-5f7d-434d-96b6-aa15b4e62ed6.png","https://assets.editor.p5js.org/5f6edf9a373ba6002415d9ca/3a6aca7f-6f42-483b-b5cb-0d82452e75ca.png","https://assets.editor.p5js.org/5f6edf9a373ba6002415d9ca/1519e804-801d-4ac8-beaf-61fbd625ab89.png","https://assets.editor.p5js.org/5f6edf9a373ba6002415d9ca/8bfc40e2-4e9a-4abf-9fb3-59423ee1934f.png","https://assets.editor.p5js.org/5f6edf9a373ba6002415d9ca/1b6083d4-624e-4f48-902c-b123759dbb84.png","https://assets.editor.p5js.org/5f6edf9a373ba6002415d9ca/e5522eaa-781b-4707-8fac-14f39ce015f5.png","https://assets.editor.p5js.org/5f6edf9a373ba6002415d9ca/5c7ff311-fcca-4091-b573-c8177c20b7ce.png")
+
+  bananaImage = loadImage("https://assets.editor.p5js.org/5f6edf9a373ba6002415d9ca/296c895d-10fb-4e5a-ba9f-647fe7f9a5ac.png");
+  
+  obstacleImage = loadImage("https://assets.editor.p5js.org/5f6edf9a373ba6002415d9ca/67a25819-a058-4b62-bbb7-9d46a0360be6.png");
+ 
+}
+
+
+
+function setup() {
+  
+  createCanvas(400,400);
+  
+  
+  FoodGroup = createGroup();
+  obstacleGroup = createGroup();
+  TimeGroup = createGroup();
+  
+  
+  monkey = createSprite(50, 250, 10, 10);
+  monkey.addAnimation("monkey",monkey_running);
+  monkey.scale = 0.1;
+  
+  ground = createSprite(70, 350, 800, 10);
+  ground.velocityX = -4;
+  ground.x=ground.width/2;
+
+  score = 0;
+  survialTime = 0;
+  
+}
+
+
+function draw() {
+  
+  
+  background (180);
+  
+   
+  stroke("black");
+    fill("black");
+      textSize(20);
+  
+  text("Survial Time:"+  survialTime, 100, 50);
+  
+  
+  stroke("black");
+    fill("black");
+      textSize(20);
+  text("Score:"+  score, 300, 100);
+  
+
+  monkey.collide(ground);
+  
+  if(gameState === PLAY){
+      monkey.changeAnimation("running", monkey_running);
+    
+    survialTime = Math.ceil(frameCount/frameRate());
+     
+    
+    if (ground.x < 0){
+      ground.x = ground.width/2;
+    }
+    
+  
+    if(keyDown("space")) {
+        monkey.velocityY = -12;
+    }    
+    
+    if(FoodGroup.isTouching(monkey)) {
+      FoodGroup.destroyEach();
+      score = score+1;
+    }
+   
+  
+  monkey.velocityY = monkey.velocityY + 0.8;
+  
+    
+  
+  
+  
+  obstacleGroup.setLifetimeEach(-1);
+  
+  
+  food();
+  obstacles();
+    
+    
+      
+    
+    
+    if(obstacleGroup.isTouching(monkey)){
+        
+        gameState = END;
+      
+    }
+  }
+  
+   if (gameState === END) {
+     obstacleGroup.destroyEach();
+    FoodGroup.destroyEach();
+     survialTime.visible = false;
+     
+
+     stroke("red");
+    fill("red");
+       textSize(30);
+  text("Game Over", 110, 200);
+     
+      stroke("black");
+    fill("black");
+       textSize(30);
+     text("Monkey is dead", 100, 240);
+   }
+ 
+  
+  
+ 
+
+  
+  drawSprites();
+}
+
+
+function food() {
+  if (frameCount % 80 === 0) {
+    banana = createSprite(400,350,40,10);
+    banana.addImage(bananaImage);
+    banana.y = Math.round(random(120,200));
+    banana.scale = 0.1;
+    
+    banana.velocityX = -3;
+    banana.lifetime = 200;
+    
+    FoodGroup.add(banana);
+  }
+}
+
+
+function obstacles() {
+  if (frameCount % 300 === 0){
+    obstacle = createSprite(250,325,10,10);
+    obstacle.addImage(obstacleImage);
+    obstacle.velocityX = -3;
+    obstacle.lifetime = 200;
+    obstacle.scale = 0.1 ;
+     obstacleGroup.add(obstacle);
+  }
+
+}
+
+
+ 
+ 
+
+
+
+</script>
+  
+
+</body></html>
